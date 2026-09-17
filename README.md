@@ -193,6 +193,45 @@ npm run dev
 
 The frontend typically runs on `http://localhost:5173` and the backend on `http://localhost:8000` unless the environment variables are changed.
 
+## Deploy to Vercel
+
+Deploy the `Client` and `Server` folders as two separate Vercel projects.
+
+### Backend project
+
+- Import the repository and set **Root Directory** to `Server`.
+- Vercel will use `server.js` through `Server/vercel.json`.
+- Add these environment variables in the Vercel project settings:
+
+```env
+MONGODB_URL=your_mongodb_connection_string
+JWT_SECRET=your_long_random_secret
+FRONTEND_URL=https://your-client-project.vercel.app
+NODE_ENV=production
+```
+
+Copy the deployed backend URL after the first deployment.
+
+### Frontend project
+
+- Import the same repository as a second Vercel project and set **Root Directory** to `Client`.
+- Vercel will run `npm run build` and use `Client/vercel.json` for React Router fallback.
+- Add these environment variables in the Vercel project settings:
+
+```env
+VITE_BACKEND_URL=https://your-server-project.vercel.app
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_firebase_app_id
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+After the frontend deployment, update the backend `FRONTEND_URL` with the final frontend URL and redeploy the backend. Add the frontend URL to Firebase Authentication's authorized domains and configure the required Google OAuth redirect origins there as well.
+
 ## API Documentation
 
 The backend exposes a REST API under `/api`.

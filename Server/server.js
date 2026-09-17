@@ -1,23 +1,8 @@
 import express from "express";
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 dotenv.config();
-
-
-// SEPARATE DB FILE BNANE KI BJAE YAHAN E CONNECTION KR DIYA
-mongoose.connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.log("DB Error:", err);
-  });
-
-
-
-
 
 const app = express();
 app.use(cors({credentials:true, origin: process.env.FRONTEND_URL || 'http://localhost:5173'}));
@@ -56,4 +41,8 @@ app.use('/api/listing', listingRouter)
 
 const port=process.env.PORT || 8000;
 
-app.listen(port,()=>{console.log("Server Started")})
+if (!process.env.VERCEL) {
+  app.listen(port,()=>{console.log("Server Started")})
+}
+
+export default app;
