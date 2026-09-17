@@ -6,12 +6,11 @@ A modern real-estate marketplace built with React, Express, and MongoDB for brow
 
 PakEstate is a property listing platform designed for users who want to discover homes for sale or rent, compare key property details, and manage their own listings through a simple web interface. The project is built for buyers, renters, and property owners who want to list and explore real-estate opportunities in a clean, responsive experience.
 
-The application combines a Vite-based frontend with an Express API and MongoDB database. It supports user authentication, listing creation and management, search/filtering, Google sign-in, and image uploads through Supabase Storage.
+The application combines a Vite-based frontend with an Express API and MongoDB database. It supports email/password authentication, listing creation and management, search/filtering, and image URLs stored with listings.
 
 ## Features
 
 - User registration and login with email/password
-- Google sign-in via Firebase authentication
 - JWT-based authentication stored in an HTTP-only cookie
 - Protected routes for user-specific actions
 - User profile page with profile updates and avatar upload
@@ -26,7 +25,7 @@ The application combines a Vite-based frontend with an Express API and MongoDB d
 - Public listing detail pages with image gallery and listing metadata
 - Recent listings sections on the homepage for offers, rent, and sale categories
 - Responsive UI built with React and Tailwind CSS
-- Image uploads for listing photos and profile avatars using Supabase Storage
+- Image URLs for listing photos and profile avatars
 - User ownership checks before allowing listing or account updates/deletes
 
 ## Tech Stack
@@ -36,8 +35,8 @@ The application combines a Vite-based frontend with an Express API and MongoDB d
 | Frontend | React, Vite, JavaScript, React Router, Tailwind CSS |
 | Backend | Node.js, Express |
 | Database | MongoDB with Mongoose |
-| Authentication | JWT, Firebase Authentication for Google login |
-| File Storage | Supabase Storage |
+| Authentication | Email/password authentication with JWT cookies |
+| File Storage | Public image URLs stored with listings and profiles |
 | State Management | Redux Toolkit (installed and structured in the app), plus localStorage for the current user session |
 | Styling | Tailwind CSS |
 | API Requests | Axios |
@@ -52,16 +51,14 @@ The project follows a simple client-server architecture:
 - The frontend is a React application served by Vite.
 - The backend is an Express API that handles authentication, listing operations, and user actions.
 - MongoDB stores user and listing records.
-- Firebase handles Google sign-in.
-- Supabase Storage stores uploaded listing and avatar images.
+- Email/password authentication is handled by the Express API.
+- Listing and avatar image URLs are stored in MongoDB; no file-storage provider is required.
 
 ```mermaid
 flowchart LR
     User --> Client[React Frontend \n Vite + Tailwind]
     Client --> API[Express API \n Node.js]
     API --> DB[MongoDB \n Mongoose Models]
-    Client --> Firebase[Firebase Auth \n Google Sign-In]
-    Client --> Supabase[Supabase Storage \n image uploads]
     API --> JWT[JWT Cookie Auth]
 ```
 
@@ -76,9 +73,7 @@ Real-State-Project/
 │   │   ├── Pages/
 │   │   ├── Redux/
 │   │   ├── App.jsx
-│   │   ├── firebase.js
 │   │   ├── main.jsx
-│   │   ├── supabase.js
 │   │   └── index.css
 │   ├── .env
 │   ├── eslint.config.js
@@ -105,7 +100,7 @@ Real-State-Project/
 ### Folder overview
 
 - Client: frontend application built with React and Vite
-- src/Components: reusable UI components such as Header, ListingCard, Contact, OAuth, Private, and route wrappers
+- src/Components: reusable UI components such as Header, ListingCard, Contact, Private, and route wrappers
 - src/Pages: application pages including Home, SignIn, SignUp, Profile, CreateListing, Listing, UpdateListing, Search, and About
 - src/Redux: Redux store and user slice setup
 - Server/Controllers: business logic for authentication, users, and listings
@@ -119,7 +114,7 @@ Real-State-Project/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/OmairAftab/mern-estate.git
+git clone http://github.com/anwaarulislam111-netizen/Mern-real-estate-project
 cd mern-estate
 ```
 
@@ -147,15 +142,10 @@ This project uses environment variables in both the frontend and backend.
 
 ```env
 VITE_BACKEND_URL=http://localhost:8000
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 These variables are used in:
 
-- `Client/src/firebase.js` for Firebase initialization
-- `Client/src/supabase.js` for Supabase client creation
 - frontend API calls to the backend (`VITE_BACKEND_URL`)
 
 #### Backend: Server/.env
@@ -220,17 +210,9 @@ Copy the deployed backend URL after the first deployment.
 
 ```env
 VITE_BACKEND_URL=https://your-server-project.vercel.app
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_firebase_app_id
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-After the frontend deployment, update the backend `FRONTEND_URL` with the final frontend URL and redeploy the backend. Add the frontend URL to Firebase Authentication's authorized domains and configure the required Google OAuth redirect origins there as well.
+After the frontend deployment, update the backend `FRONTEND_URL` with the final frontend URL and redeploy the backend.
 
 ## API Documentation
 
@@ -240,7 +222,6 @@ The backend exposes a REST API under `/api`.
 | --- | --- | --- | --- |
 | POST | `/api/auth/signup` | Register a new user | No |
 | POST | `/api/auth/signin` | Sign in with email and password | No |
-| POST | `/api/auth/google` | Google authentication flow | No |
 | GET | `/api/auth/signout` | Clear JWT cookie and sign the user out | No |
 | GET | `/api/user/:id` | Fetch a single user by ID | No |
 | POST | `/api/user/update/:id` | Update user information | Yes |
@@ -288,32 +269,9 @@ Authorization logic in the app is based on ownership checks:
 
 This project does not implement a separate admin role or permission system.
 
-## Image/File Storage
+## Image URLs
 
-The project uses Supabase Storage to store uploaded images.
-
-### Why it is used
-
-Supabase is used for:
-
-- listing image uploads
-- profile avatar uploads
-
-This is configured in `Client/src/supabase.js` and used in pages such as:
-
-- `Client/src/Pages/CreateListing.jsx`
-- `Client/src/Pages/Profile.jsx`
-- `Client/src/Pages/UpdateListing.jsx`
-
-### Storage behavior
-
-- Listing images are uploaded under a `listings/` directory
-- Profile images are uploaded under an `avatars/` directory
-- The app uses `supabase.storage.from("mern_state_bucket")`
-- Public URLs are generated with `getPublicUrl(filePath)`
-- Those URLs are saved in the database as image URLs and then displayed in the UI
-
-This means the application stores image references in MongoDB and the actual binary files in Supabase Storage.
+The application does not use a file-storage provider. Users add public image URLs for listing photos and profile avatars, and those URLs are stored in MongoDB.
 
 ## Database
 

@@ -16,7 +16,6 @@ const userSchema=new mongoose.Schema({
         required:true
     },
     avatar:{
-// authcontroller.js main jo googleController function likha hai na us main user ki picture b leni hai na to bs us k liye ye kaam kia h
         type: String,
         default: "https://media.istockphoto.com/id/2171382633/vector/user-profile-icon-anonymous-person-symbol-blank-avatar-graphic-vector-illustration.jpg?s=612x612&w=0&k=20&c=ZwOF6NfOR0zhYC44xOX06ryIPAUhDvAajrPsaZ6v1-w="
     }
