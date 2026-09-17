@@ -3,15 +3,12 @@ import { useState } from 'react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const MAX_IMAGES = 6;
 
 const CreateListing = () => {
   const navigate = useNavigate();
 
     const[imageUrl,setImageUrl]=useState('')
-
-    console.log(files)
 
     const [formData, setFormData] = useState({
       imageUrls: [],
