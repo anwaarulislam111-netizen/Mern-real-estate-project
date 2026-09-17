@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Link , useNavigate} from 'react-router-dom'
 import { toast } from 'react-toastify'
 import axios from 'axios'
-import OAuth from '../Components/OAuth'
 
  const Signin = () => {
   const [formData, setFormData] = useState({})
@@ -98,8 +97,6 @@ import OAuth from '../Components/OAuth'
         </button>
 
 
-      <OAuth />
-        
       </form>
 
 

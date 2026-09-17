@@ -1,17 +1,15 @@
 import React from 'react'
 import { useState } from 'react'
-import { supabase } from '../supabase.js';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const MAX_IMAGES = 6;
-const STORAGE_BUCKET = 'mern_state_bucket';
 
 const CreateListing = () => {
   const navigate = useNavigate();
 
-    const[files,setFiles]=useState([])
+    const[imageUrl,setImageUrl]=useState('')
 
     console.log(files)
 
@@ -50,45 +48,16 @@ const CreateListing = () => {
 
 
   const handleImageSubmit = () => {
-
-    // atleast 1 image and Total images (old + new) ≤ 6
-    if (files.length > 0 && files.length + formData.imageUrls.length <= MAX_IMAGES) {
-      const invalidFile = files.find(
-        (file) => !file.type.startsWith('image/') || file.size > MAX_IMAGE_SIZE_BYTES
-      );
-
-      if (invalidFile) {
-        setImageUploadError('Please upload valid images up to 2 MB each');
-        return;
-      }
-
-      setUploading(true);
-      setImageUploadError(false);
-      const promises = [];
-
-      for (let i = 0; i < files.length; i++) {
-        promises.push(storeImage(files[i]));
-      }
-
-      Promise.all(promises) //Wait until ALL uploads finish
-        .then((urls) => {
-          setFormData({
-            ...formData,
-            imageUrls: formData.imageUrls.concat(urls),  //Add them to existing imageUrls
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch((err) => {
-          setImageUploadError(err?.message || "Image upload failed. Please try again.");
-          setUploading(false);
-        });
-    } else if (files.length === 0) {
-        setImageUploadError("Please select an image to upload");
-    } else {
-      setImageUploadError(`You can only upload ${MAX_IMAGES} images per listing`);
-      setUploading(false);
+    if (!imageUrl.trim()) return setImageUploadError('Enter an image URL');
+    if (formData.imageUrls.length >= MAX_IMAGES) return setImageUploadError(`You can only add ${MAX_IMAGES} images per listing`);
+    try {
+      new URL(imageUrl.trim());
+    } catch {
+      return setImageUploadError('Enter a valid image URL');
     }
+    setFormData((prev) => ({ ...prev, imageUrls: [...prev.imageUrls, imageUrl.trim()] }));
+    setImageUrl('');
+    setImageUploadError(false);
   };
 
 
@@ -100,45 +69,6 @@ const CreateListing = () => {
 
 
   
-
-
-    const storeImage = async (file) => {
-    try {
-      const fileName = new Date().getTime() + "_" + file.name;
-      const filePath = `listings/${fileName}`;
-
-      // Upload to Supabase
-      const { error } = await supabase.storage
-        .from(STORAGE_BUCKET)                    //top pe define kiya hai : const STORAGE_BUCKET = 'mern_state_bucket';
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
-        });
-
-      if (error) {
-        throw new Error(error.message || 'Upload failed');
-      }
-
-      // Get the public URL
-      const { data: urlData } = supabase.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(filePath);
-
-      if (!urlData?.publicUrl) {
-        throw new Error('Failed to generate image URL');
-      }
-
-      return urlData.publicUrl;
-    } catch (error) {
-      throw new Error(error?.message || 'Image upload failed');
-    }
-  };
-
-
-
-
-
 
 
 
@@ -369,12 +299,12 @@ const CreateListing = () => {
 
             <div className='flex flex-col ml-6 flex-1 gap-4'>  {/* start of right div for small screens  */}
                 <p className='font-semibold pt-3'>Images: 
-                    <span className='font-normal text-gray-600 ml-2'> The first image will be the cover (max 6)</span>
+                  <span className='font-normal text-gray-600 ml-2'> Add image URLs; first image is the cover (max 6)</span>
                 </p>
 
                 <div className='flex gap-3'>
-                    <input onChange={(e)=>setFiles(Array.from(e.target.files || []))}  type="file" id="images"  accept="image/*"  multiple className='p-3 bg-white rounded-lg'/>
-                    <button type='button' onClick={handleImageSubmit} disabled={uploading} className='p-3 text-green-700 border border-green-700 rounded-lg hover:bg-green-100 cursor-pointer disabled:opacity-70'>{uploading ? 'UPLOADING...' : 'UPLOAD'}</button>
+                    <input value={imageUrl} onChange={(e)=>setImageUrl(e.target.value)} type="url" placeholder="https://example.com/image.jpg" className='p-3 bg-white rounded-lg flex-1'/>
+                    <button type='button' onClick={handleImageSubmit} className='p-3 text-green-700 border border-green-700 rounded-lg hover:bg-green-100 cursor-pointer'>ADD</button>
                 </div>
             
 {/* JO ERROR AAYE GA IDHAR DIKHANA MEAN AGAR PICTURES 6 SE ZYADA HAIN */}
