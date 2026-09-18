@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
-body{
-    background-color: rgba(192, 192, 192, 0.255)
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    color: #263238;
+    background-color: #f4f1ea;
+    background-image:
+        radial-gradient(circle at 8% 12%, rgba(196, 154, 108, 0.18), transparent 28rem),
+        radial-gradient(circle at 92% 30%, rgba(126, 159, 155, 0.16), transparent 30rem),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(244, 241, 234, 0.86));
+    background-attachment: fixed;
 }
